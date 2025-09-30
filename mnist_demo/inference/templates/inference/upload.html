@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>上传手写数字</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>上传手写数字图片</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+            </div>
+
+            <button type="submit">识别数字</button>
+        </form>
+
+        <div class="preview">
+            <h3>图片预览</h3>
+            <img id="preview-image" src="#" alt="预览图">
+        </div>
+    </div>
+
+    <script>
+        // 实时预览上传的图片
+        document.getElementById('id_image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview-image');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MNIST 数字识别</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .result-box {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            width: 100%;
+        }
+        .digit-display {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MNIST 手写数字识别</h1>
+
+        <div class="result-box">
+            <h2>识别结果</h2>
+            <div class="digit-display">{{ predicted_digit }}</div>
+            <p>模型预测该数字为: <strong>{{ predicted_digit }}</strong></p>
+        </div>
+
+        <div class="result-box">
+            <h2>输入图片</h2>
+            <img src="{{ image_url }}" alt="测试数字" style="max-width: 200px;">
+        </div>
+
+        <div class="result-box">
+            <h2>预测概率分布</h2>
+            <div class="chart-container">
+                <canvas id="probabilityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 从 Django 模板获取概率数据
+        const probData = [
+            {% for item in probabilities %}
+                { digit: {{ item.digit }}, probability: {{ item.probability }} },
+            {% endfor %}
+        ];
+
+        // 创建图表
+        const ctx = document.getElementById('probabilityChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: probData.map(item => item.digit),
+                datasets: [{
+                    label: '预测概率 (%)',
+                    data: probData.map(item => item.probability),
+                    backgroundColor: 'rgba(13, 110, 253, 0.5)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '概率 (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '数字'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `数字 ${context.label}: ${context.parsed.y.toFixed(2)}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
